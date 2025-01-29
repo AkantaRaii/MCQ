@@ -1,7 +1,9 @@
 const express = require('express');
 const router=express.Router();
 
-router.get('/test', (req, res) => {
+const checkApiKey =require('../middleware/checkApiKey');
+
+router.get('/test', checkApiKey,(req, res) => {
     res.json({ message: 'Hello, world!' });
 });
 module.exports = router;
