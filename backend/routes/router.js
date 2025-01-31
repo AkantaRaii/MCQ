@@ -4,6 +4,9 @@ const checkApiKey = require("../middleware/checkApiKey");
 const passport = require("passport");
 const { googleCallback } = require("../controller/authController");  // Make sure you require googleCallback
 const router = express.Router();
+const { signin } = require("../controller/signin");
+const { signup } = require("../controller/signup");
+
 
 // Quiz API Route
 router.get("/questions", checkApiKey, getALLQuestions);
@@ -26,5 +29,11 @@ router.get(
 router.get("/auth/failure", (req, res) => {
   res.status(401).send({ message: "Google Login Failed!" });
 });
+
+// Sign-up Route
+router.post("/signup", signup);
+
+// Sign-in Route
+router.post("/signin", signin);
 
 module.exports = router;

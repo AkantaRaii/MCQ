@@ -6,6 +6,9 @@ const app = express();
 const router = require("../routes/router");
 const { setupGoogleStrategy } = require("../controller/authController");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const cors = require("cors");  // Import CORS
+
+app.use(cors());
 
 const port = process.env.PORT || 3000;
 
