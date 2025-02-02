@@ -14,6 +14,18 @@ exports.showCourses = async (req, res) => {
         return res.status(500).json({message:'Sql course query error'});
     }
 }
+exports.manageCourses = async (req, res) => {
+    try{
+        const [courses] = await db.promise().query('SELECT * FROM Courses'); 
+        console.log(courses); // Debugging
+        
+        return res.status(200).render('manageCourse', { courses }); 
+
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({message:'Sql course query error'});
+    }
+}
 exports.updateCourse=async(req,res)=>{
     console.log("test");
     const {courseId,course}=req.body;

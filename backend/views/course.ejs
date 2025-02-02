@@ -2,196 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
     <title>Courses</title>
     <link rel="stylesheet" href="/css/course.css">
 </head>
 <body>
+    <h2 style="text-align: left;">
+        <a style="text-decoration: none; color: black;" href="/admin/courses"> ► courses ►</a>
+    </h2>
+    
     <h1>Available Courses</h1>
     <div class="container">
         <div class="courses-list">
             <!-- Loop through each course and generate a card -->
-            <div class="double-click-hint">
-                💡 Double-click on a course to edit it.
-            </div>
             <% courses.forEach(course => { %>
-                <div class="course-card" id="course-<%= course.course_id %>" ondblclick="makeEditable(<%= course.course_id %>)">
+                <div class="course-card" id="course-<%= course.course_id %>" onclick="window.location.href='/admin/subjects/<%=course.course_id%>'">
                     <span id="course-name-<%= course.course_id %>"><%= course.course_name %></span>
                     <div class="course-actions">
-                        <a href="#" id='edit-button-<%= course.course_id %>'class="edit-link" onclick="makeEditable(<%= course.course_id %>); return false;">Edit</a>
-                        <button id='delete-button-<%= course.course_id %>' class="delete-button" onclick="event.stopPropagation(); deleteCourse(<%= course.course_id %>)">Delete</button>
                     </div>
                 </div>
             <% }); %>
         </div><br>
         <div class="form-group">
-            <input type="text" id="newCourseName" placeholder="Enter course name" 
-                   onkeypress="if(event.key === 'Enter') addCourse()">
-            <button class="add-course" onclick="addCourse()">+ Add New Course</button>
+            <button class="add-course" ><a style="text-decoration:none ;color: white; width: 2;" href="/admin/manageCourse">Manage Course</a></button>
         </div>
+       
         
     </div>
 
 </body>
-
-<script>
-    async function addCourse() {
-        const courseName = document.getElementById('newCourseName').value.trim();
-        console.log(courseName);
-        if (!courseName) {
-            alert("Please enter a course name.");
-            return;
-        }
-
-        try {
-            const response = await fetch('/admin/addCourse', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ course: courseName })
-            });
-
-            const data = await response.json();
-            console.log(data);
-            if (response.ok) {
-                // Dynamically add the new course to the UI
-                const courseList = document.querySelector('.courses-list');
-                const newCourse = document.createElement('div');
-                newCourse.classList.add('course-card');
-                newCourse.id = `course-${data.course.course_id}`;
-                newCourse.innerHTML = `
-                    <span>${ data.course.course_name}</span>
-                    <div class="course-actions">
-                        <a href="#" id='edit-button-${ data.course.course_id}'class="edit-link" onclick="makeEditable(${data.course.course_id}); return false;">Edit</a>
-                        <button id='delete-button-${ data.course.course_id}' class="delete-button" onclick="event.stopPropagation(); deleteCourse(${ data.course.course_id})">Delete</button>
-                    </div>
-                `;
-                courseList.appendChild(newCourse);
-
-                // Clear input field
-                document.getElementById('newCourseName').value = '';
-
-            } else {
-                alert('Error: ' + data.message);
-            }
-        } catch (error) {
-            console.error('Error adding course:', error);
-            alert('Failed to add course.');
-        }
-    }
-
-    async function deleteCourse(courseId) {
-
-        try {
-            const response = await fetch('/admin/deleteCourse',{
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-                },
-            body: JSON.stringify({ courseId })});
-
-
-            const data = await response.json();
-            if (response.ok) {
-                // Remove the course from the UI
-                document.getElementById(`course-${courseId}`).remove();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        } catch (error) {
-            console.error('Error deleting course:', error);
-            alert('Failed to delete course.');
-        }
-    }
-    function makeEditable(courseId) {
-    const editbutton = document.getElementById('edit-button'+'-'+courseId);
-    const deletebutton = document.getElementById('delete-button'+'-'+courseId);
-    editbutton.style.display = 'none';
-    deletebutton.style.display = 'none';
-
-    // Get the span element containing the course name
-    const spanElement = document.getElementById(`course-name-${courseId}`);
-    const courseName = spanElement.innerText;
-
-    // Replace the span with an input element
-    const inputElement = document.createElement('input');
-    inputElement.type = 'text';
-    inputElement.value = courseName;
-    inputElement.id = `edit-course-name-${courseId}`;
-    
-    // Apply styles to make it blend with the card
-    inputElement.style.border = 'none';
-    inputElement.style.outline = 'none';
-    inputElement.style.fontSize = 'inherit';
-    inputElement.style.background = 'transparent';
-    inputElement.style.padding = '5px';
-    inputElement.style.borderRadius = '5px';
-    inputElement.style.minWidth = '50px'; // Minimum width to avoid collapsing
-    inputElement.style.width = `${courseName.length + 2}ch`; // Adjust width dynamically
-    inputElement.style.maxWidth = '100%'; // Prevent overflow
-    inputElement.style.resize = 'none'; // No manual resize
-
-    // Replace the span with the input element
-    spanElement.replaceWith(inputElement);
-
-    // Display a message to hit enter
-    const message = document.createElement('small');
-    message.innerText = 'Press Enter to save changes';
-    message.style.display = 'block';
-    message.style.marginTop = '5px';
-    message.style.color = 'gray';
-    message.style.fontSize = '12px';
-    message.id = `edit-message-${courseId}`;
-    inputElement.after(message);
-    message.style.display = 'inline-block';
-    // Handle Enter key press
-    inputElement.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            saveCourseName(courseId, inputElement.value);
-            message.remove(); // Remove the message after saving
-            editbutton.style.display='inline-block';
-            deletebutton.style.display='inline-block';
-        }
-    });
-
-    // Dynamically update width as user types
-    inputElement.addEventListener('input', function() {
-        inputElement.style.width = `${inputElement.value.length + 2}ch`;
-    });
-
-    // Auto-focus on the input
-    inputElement.focus();
-}
-
-
-
-
-async function saveCourseName(courseId, newCourseName) {
-    // Perform an AJAX request or any other action to save the new course name
-    console.log(`Saving new course name for course ${courseId}: ${newCourseName}`);
-
-    // Replace the input field with the updated span
-    const inputElement = document.getElementById(`edit-course-name-${courseId}`);
-    const spanElement = document.createElement('span');
-    spanElement.id = `course-name-${courseId}`;
-    spanElement.innerText = newCourseName;
-
-    inputElement.replaceWith(spanElement);
-
-        try{
-            await fetch('/admin/updateCourse',{
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ courseId, course: newCourseName })
-            });
-        }catch(error){
-            console.error('Error updating course:', error);
-            alert('Failed to update course.');
-        }
-    
-}
-</script>
-</html>

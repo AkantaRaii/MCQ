@@ -3,11 +3,10 @@ const mysql= require('mysql2');
 
 // Create a connection to the database
 const db=mysql.createConnection({
-        host:'localhost',
-        port:'3307',
-        user:'root',
-        password:'',
-        database:'Mcq'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
     });
 
 db.connect((err)=>{
