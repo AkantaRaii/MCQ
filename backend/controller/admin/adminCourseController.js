@@ -48,8 +48,10 @@ exports.addCourse = async (req, res) => {
     }
     try{
         await db.execute('INSERT INTO Courses(course_name) VALUES(?)',[course]);
-        const [Course]=await db.promise().query('SELECT * FROM Courses Where course_name=?',[course]);
-        return res.status(200).json({course:Course[0]});
+        const [latestCourse] = await db.promise().query(
+            'SELECT * FROM Courses ORDER BY created_at DESC LIMIT 1'
+        );
+        return res.status(200).json({course:latestCourse[0]});
     }
     catch(err){
         console.log(err);

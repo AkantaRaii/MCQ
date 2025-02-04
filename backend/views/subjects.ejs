@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Courses</title>
+    <link rel="stylesheet" href="/css/course.css">
+</head>
+<body>
+    <p style="text-align: left;">
+        <a style="text-decoration: none; color: black;" href="/admin/courses"> ►course </a>
+        <a style="text-decoration: none; color: black;" href="/admin/subjects/<%=course.course_id%>"> ►<%=course.course_name%></a>
+
+    </p>
+    
+    <h1>Subjects</h1>
+    <div class="container">
+        <div class="list">
+            <!-- Check if the subjects list is empty -->
+            <% if (subjects.length === 0) { %>
+                <div class="empty-message">
+                    📢 No subjects available. Click "Add and Manage Subject" to create one.
+                </div>
+            <% } else { %>
+                <!-- Loop through each subject and generate a card -->
+                <% subjects.forEach((subject, index) => { %>
+                    <div class="card" id="course-<%= subject.subject_id %>" onclick="window.location.href='/admin/questions/<%= subject.subject_id %>'">
+                        <%= index + 1 %>. <span id="name-<%= subject.subject_id %>">
+                            <%= subject.subject_name %>
+                        </span>
+                        <div class="course-actions">
+                            <!-- Add any actions here if needed -->
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div><br>
+    
+        <div class="form-group">
+            <button class="add-course">
+                <a style="text-decoration: none; color: white;" href="/admin/manageSubject/<%= course.course_id %>">
+                    Add and Manage Subject
+                </a>
+            </button>
+        </div>
+    </div>
+    
+
+</body>
