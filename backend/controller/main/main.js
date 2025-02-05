@@ -1,4 +1,4 @@
-const db = require("../database/db");
+const db = require("../../database/db");
 
 const getALLQuestions = (req,res) => {
     db.query("SELECT * FROM questions", (err,results)=>{

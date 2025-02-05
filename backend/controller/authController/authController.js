@@ -1,6 +1,6 @@
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
-const db = require("../database/db");
+const db = require("../../database/db");
 
 exports.googleCallback = (req, res) => {
     const user = req.user;
