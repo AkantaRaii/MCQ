@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Subjects</title>
+    <link rel="stylesheet" href="/css/course.css">
+    <link rel="stylesheet" href="/css/manageSubject.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Breadcrumb navigation -->
+        <nav class="breadcrumb">
+            <a href="/admin/courses"><i class="fas fa-home"></i> Courses</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="/admin/subjects/<%= course.course_id %>"><%= course.course_name %></a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Manage Subjects</span>
+        </nav>
+
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Manage Subjects</h1>
+                <p class="course-subtitle">Course: <%= course.course_name %></p>
+            </div>
+        </header>
+
+        <div class="manage-subjects-container">
+            <% if (subjects.length === 0) { %>
+                <div class="empty-state">
+                    <i class="fas fa-book-open empty-icon"></i>
+                    <h2>No Subjects Available</h2>
+                    <p>Get started by adding your first subject below</p>
+                </div>
+            <% } else { %>
+                <div class="hint-message">
+                    <i class="fas fa-info-circle"></i>
+                    Double-click on a subject to edit it
+                </div>
+                
+                <div class="subjects-list">
+                    <% subjects.forEach((subject, index) => { %>
+                        <div class="subject-item" id="card-<%= subject.subject_id %>" ondblclick="makeEditable(<%= subject.subject_id %>)">
+                            <div class="subject-content">
+                                <div class="subject-number"><%= index + 1 %></div>
+                                <div class="subject-name">
+                                    <span id="name-<%= subject.subject_id %>"><%= subject.subject_name %></span>
+                                </div>
+                                <div class="subject-actions">
+                                    <button id='edit-button-<%= subject.subject_id %>' class="action-btn edit-btn" onclick="makeEditable(<%= subject.subject_id %>); return false;">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button id='delete-button-<%= subject.subject_id %>' class="action-btn delete-btn" 
+                                        onclick="event.stopPropagation(); deleteSubject(<%= subject.subject_id %>, '<%= subject.subject_name %>')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </div>
+
+        <div class="add-subject-form">
+            <input type="text" id="newEntry" placeholder="Enter subject name" 
+                   onkeypress="if(event.key === 'Enter') addSubject(<%= course.course_id %>)">
+            <button class="add-course-btn" onclick="addSubject(<%= course.course_id %>)">
+                <i class="fas fa-plus"></i> Add New Subject
+            </button>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="overlay" class="overlay">
+        <div class="modal">
+            <div class="modal-content">
+                <i class="fas fa-exclamation-triangle warning-icon"></i>
+                <h3>Confirm Deletion</h3>
+                <p>Type <strong>"delete"</strong> to confirm</p>
+                <input type="text" id="confirmInput" placeholder="Type 'delete'">
+                <div class="modal-actions">
+                    <button id="confirmDelete" class="confirm-btn">Delete</button>
+                    <button id="cancelDelete" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function addSubject(course_id) {
+            const subjectName = document.getElementById('newEntry').value.trim();
+            console.log(subjectName);
+            if (!subjectName) {
+                alert("Please enter a course name.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/admin/addSubject', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ subject_name: subjectName,course_id:course_id })
+                });
+
+                const data = await response.json();
+                console.log(data);
+                if (response.ok) {
+                    // Dynamically add the new course to the UI
+                    const subjectList = document.querySelector('.subjects-list');
+                    const existingSubject = subjectList.querySelectorAll('.subject-item'); // Get all existing course cards
+                    const newIndex = existingSubject.length + 1; // Calculate the new index
+                    const newSubject = document.createElement('div');    
+                    newSubject.classList.add('subject-item');
+                    console.log(data.subject.subject_id);
+                    newSubject.id = `card-${data.subject.subject_id}`;
+                    newSubject.innerHTML = `
+                        <div class="subject-content">
+                            <div class="subject-number">${newIndex}</div>
+                            <div class="subject-name">
+                                <span id="name-${data.subject.subject_id}">${data.subject.subject_name}</span>
+                            </div>
+                            <div class="subject-actions">
+                                <button id='edit-button-${data.subject.subject_id}' class="action-btn edit-btn" onclick="makeEditable(${data.subject.subject_id}); return false;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button id='delete-button-${data.subject.subject_id}' class="action-btn delete-btn" onclick="event.stopPropagation(); deleteSubject(${data.subject.subject_id},'${data.subject.subject_name}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    console.log('test');
+                    // Append the new course card to the list
+                    subjectList.appendChild(newSubject);
+
+
+                    // Clear input field
+                    document.getElementById('newEntry').value = '';
+
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error adding course:', error);
+                alert('Failed to add course.');
+            }
+        }
+
+    //delete
+    let currentSubjectId = null;
+
+    async function deleteSubject(subject_id, subject) {
+        currentSubjectId = subject_id;
+        document.querySelector('#overlay p').innerHTML = 
+            `Type <span style="color: red; font-weight: bold;">"delete"</span> to confirm deleting course: 
+            <span style="color: blue; font-weight: bold;">${subject}</span>`;
+        document.getElementById('overlay').style.display = 'flex';
+    }
+
+
+    document.getElementById('confirmInput').addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+            document.getElementById('confirmDelete').click(); // Trigger the click event of the Delete button
+        }
+    });
+    document.getElementById('confirmDelete').addEventListener('click', async () => {
+        const input = document.getElementById('confirmInput').value;
+        if (input.toLowerCase() === 'delete') {
+            try {
+                const response = await fetch('/admin/deleteSubject',{
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                    },
+                body: JSON.stringify({ subject_id:currentSubjectId })});
+
+
+                const data = await response.json();
+                if (response.ok) {
+                    // Remove the course from the UI
+                    document.getElementById(`card-${currentSubjectId}`).remove();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {   
+                console.error('Error deleting course:', error);
+                alert('Failed to delete course.');
+            } finally {
+                document.getElementById('overlay').style.display = 'none';
+                document.getElementById('confirmInput').value = '';
+            }
+        } else {
+            alert('You must type "delete" to confirm.');
+        }
+    });
+    document.getElementById('cancelDelete').addEventListener('click', () => {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('confirmInput').value = '';
+    });
+
+    function makeEditable(subject_id) {
+        const editbutton = document.getElementById('edit-button'+'-'+subject_id);
+        const deletebutton = document.getElementById('delete-button'+'-'+subject_id);
+        editbutton.style.display = 'none';
+        deletebutton.style.display = 'none';
+
+        // Get the span element containing the course name
+        const spanElement = document.getElementById(`name-${subject_id}`);
+        const subjectName = spanElement.innerText;
+
+        // Replace the span with an input element
+        const inputElement = document.createElement('input');
+        inputElement.type = 'text';
+        inputElement.value = subjectName;
+        inputElement.id = `edit-name-${subject_id}`;
+        
+        // Apply styles to make it blend with the card
+        inputElement.style.border = 'none';
+        inputElement.style.outline = 'none';
+        inputElement.style.fontSize = 'inherit';
+        inputElement.style.background = 'transparent';
+        inputElement.style.padding = '5px';
+        inputElement.style.borderRadius = '5px';
+        inputElement.style.minWidth = '50px'; // Minimum width to avoid collapsing
+        inputElement.style.width = `${subjectName.length + 2}ch`; // Adjust width dynamically
+        inputElement.style.maxWidth = '100%'; // Prevent overflow
+        inputElement.style.resize = 'none'; // No manual resize
+
+        // Replace the span with the input element
+        spanElement.replaceWith(inputElement);
+
+        // Display a message to hit enter
+        const message = document.createElement('small');
+        message.innerText = 'Press Enter to save changes';
+        message.style.display = 'block';
+        message.style.marginTop = '5px';
+        message.style.color = 'gray';
+        message.style.fontSize = '12px';
+        message.id = `edit-message-${subject_id}`;
+        inputElement.after(message);
+        message.style.display = 'inline-block';
+        // Handle Enter key press
+        inputElement.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                saveCourseName(subject_id, inputElement.value);
+                message.remove(); // Remove the message after saving
+                editbutton.style.display='inline-block';
+                deletebutton.style.display='inline-block';
+            }
+        });
+
+        // Dynamically update width as user types
+        inputElement.addEventListener('input', function() {
+            inputElement.style.width = `${inputElement.value.length + 2}ch`;
+        });
+
+        // Auto-focus on the input
+        inputElement.focus();
+    }
+
+
+
+
+    async function saveCourseName(subject_id, subjectName) {
+        // Perform an AJAX request or any other action to save the new course name
+        console.log(`Saving new course name for course ${subject_id}: ${subjectName}`);
+
+        // Replace the input field with the updated span
+        const inputElement = document.getElementById(`edit-name-${subject_id}`);
+        const spanElement = document.createElement('span');
+        spanElement.id = `name-${subject_id}`;
+        spanElement.innerText = subjectName;
+
+        inputElement.replaceWith(spanElement);
+
+            try{
+                await fetch('/admin/updateSubject',{
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ subject_id, subject_name: subjectName })
+                });
+            }catch(error){
+                console.error('Error updating course:', error);
+                alert('Failed to update course.');
+            }
+        
+    }
+    </script>
+</body>
+</html>
