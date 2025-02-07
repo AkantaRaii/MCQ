@@ -5,40 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
     <title>Courses</title>
     <link rel="stylesheet" href="/css/course.css">
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head> 
 <body>
-    <p style="text-align: left;">
-        <a style="text-decoration: none; color: black;" href="/admin/courses"> ► courses ►</a>
-    </p>
-    
-    <h1>Courses</h1>
-<div class="container">
-    <div class="list">
-        <!-- Check if the courses list is empty -->
-        <% if (courses.length === 0) { %>
-            <div class="empty-message">
-                📢 No courses available. Click "Add and Manage Course" to create one.
-            </div>
-        <% } else { %>
-            <!-- Loop through each course and generate a card -->
-            <% courses.forEach((course, index) => { %>
-                <div class="card" id="card-<%= course.course_id %>" onclick="window.location.href='/admin/subjects/<%= course.course_id %>'">
-                    <%= index + 1 %>. <span id="name-<%= course.course_id %>">
-                        <%= course.course_name %>
-                    </span>
-                    <div class="actions">
-                        <!-- Add any actions here if needed -->
-                    </div>
+    <div class="dashboard-container">
+        <!-- Breadcrumb navigation -->
+        <nav class="breadcrumb">
+            <a href="/admin/courses"><i class="fas fa-home"></i> Courses</a>
+        </nav>
+        
+        <header class="dashboard-header">
+            <h1>Course Management</h1>
+            <button class="add-course-btn" onclick="window.location.href='/admin/manageCourse'">
+                <i class="fas fa-plus"></i> Add New Course or Edit Course
+            </button>
+        </header>
+
+        <div class="courses-grid">
+            <% if (courses.length === 0) { %>
+                <div class="empty-state">
+                    <i class="fas fa-book-open empty-icon"></i>
+                    <h2>No Courses Available</h2>
+                    <p>Get started by adding your first course</p>
+                    <button class="add-course-btn" onclick="window.location.href='/admin/manageCourse'">
+                        <i class="fas fa-plus"></i> Add Course
+                    </button>
                 </div>
-            <% }); %>
-        <% } %>
-    </div><br>
-
-    <div class="form-group">
-        <button class="add-course">
-            <a style="text-decoration: none; color: white;" href="/admin/manageCourse">Add and Manage Course</a>
-        </button>
+            <% } else { %>
+                <% courses.forEach((course) => { %>
+                    <div class="course-card" onclick="window.location.href='/admin/subjects/<%= course.course_id %>'">
+                        <div class="course-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="course-details">
+                            <h3><%= course.course_name %></h3>
+                            <p class="course-id">Course ID: <%= course.course_id %></p>
+                        </div>
+                        <div class="card-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
     </div>
-</div>
-
 </body>
+</html>

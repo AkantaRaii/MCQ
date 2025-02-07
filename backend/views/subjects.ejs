@@ -3,47 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>Courses</title>
+    <title>Subjects</title>
     <link rel="stylesheet" href="/css/course.css">
+    <link rel="stylesheet" href="/css/subjects.css">
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <p style="text-align: left;">
-        <a style="text-decoration: none; color: black;" href="/admin/courses"> ►course </a>
-        <a style="text-decoration: none; color: black;" href="/admin/subjects/<%=course.course_id%>"> ►<%=course.course_name%></a>
+    <div class="dashboard-container">
+        <!-- Breadcrumb navigation -->
+        <nav class="breadcrumb">
+            <a href="/admin/courses"><i class="fas fa-home"></i> Courses</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="/admin/subjects/<%= course.course_id %>"><%= course.course_name %></a>
+        </nav>
 
-    </p>
-    
-    <h1>Subjects</h1>
-    <div class="container">
-        <div class="list">
-            <!-- Check if the subjects list is empty -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Subjects</h1>
+                <p class="course-subtitle">Course: <%= course.course_name %></p>
+            </div>
+            <button class="add-course-btn" onclick="window.location.href='/admin/manageSubject/<%= course.course_id %>'">
+                <i class="fas fa-plus"></i> Add Subject
+            </button>
+        </header>
+
+        <div class="subjects-container">
             <% if (subjects.length === 0) { %>
-                <div class="empty-message">
-                    📢 No subjects available. Click "Add and Manage Subject" to create one.
+                <div class="empty-state">
+                    <i class="fas fa-book empty-icon"></i>
+                    <h2>No Subjects Available</h2>
+                    <p>Get started by adding your first subject</p>
+                    <button class="add-course-btn" onclick="window.location.href='/admin/manageSubject/<%= course.course_id %>'">
+                        <i class="fas fa-plus"></i> Add Subject
+                    </button>
                 </div>
             <% } else { %>
-                <!-- Loop through each subject and generate a card -->
-                <% subjects.forEach((subject, index) => { %>
-                    <div class="card" id="course-<%= subject.subject_id %>" onclick="window.location.href='/admin/questions/<%= subject.subject_id %>'">
-                        <%= index + 1 %>. <span id="name-<%= subject.subject_id %>">
-                            <%= subject.subject_name %>
-                        </span>
-                        <div class="course-actions">
-                            <!-- Add any actions here if needed -->
+                <div class="subjects-list">
+                    <% subjects.forEach((subject, index) => { %>
+                        <div class="subject-card" onclick="window.location.href='/admin/questions/<%= subject.subject_id %>'">
+                            <div class="subject-number"><%= index + 1 %></div>
+                            <div class="subject-content">
+                                <div class="subject-icon">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <div class="subject-info">
+                                    <h3><%= subject.subject_name %></h3>
+                                    <div class="subject-meta">
+                                        <span class="subject-id">
+                                            <i class="fas fa-hashtag"></i> <%= subject.subject_id %>
+                                        </span>
+                                        <span class="subject-questions">
+                                            <i class="fas fa-question-circle"></i> 0 Questions
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="subject-action">
+                                    <span class="view-questions">View Questions <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                <% }); %>
+                    <% }); %>
+                </div>
             <% } %>
-        </div><br>
-    
-        <div class="form-group">
-            <button class="add-course">
-                <a style="text-decoration: none; color: white;" href="/admin/manageSubject/<%= course.course_id %>">
-                    Add and Manage Subject
-                </a>
-            </button>
         </div>
     </div>
-    
-
 </body>
+</html>
