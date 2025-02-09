@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questions</title>
+    <link rel="stylesheet" href="/css/course.css">
+    <link rel="stylesheet" href="/css/questions.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Breadcrumb navigation -->
+        <nav class="breadcrumb">
+            <a href="/admin/courses"><i class="fas fa-home"></i> Courses</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="/admin/subjects/<%= subject.course_id %>"><%= subject.course_name %></a>
+            <i class="fas fa-chevron-right"></i>
+            <span><%= subject.subject_name %></span>
+        </nav>
+
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Questions Bank</h1>
+                <p class="subject-subtitle">Subject: <%= subject.subject_name %></p>
+            </div>
+            <button class="add-course-btn" onclick="openModal()">
+                <i class="fas fa-plus"></i> Add Question
+            </button>
+        </header>
+
+        <div class="questions-container">
+            <% if (questions.length === 0) { %>
+                <div class="empty-state">
+                    <i class="fas fa-question-circle empty-icon"></i>
+                    <h2>No Questions Available</h2>
+                    <p>Start building your question bank by adding questions</p>
+                    <button class="add-course-btn" onclick="openModal()">
+                        <i class="fas fa-plus"></i> Add Question
+                    </button>
+                </div>
+            <% } else { %>
+                <div class="questions-grid">
+                    <% questions.forEach((question, index) => { %>
+                        <div class="question-card">
+                            <div class="question-header">
+                                <span class="question-number"><%= index + 1 %></span>
+                                <div class="question-actions">
+                                    <button class="action-btn edit-btn" title="Edit"
+                                            onclick="window.location.href='/admin/editQuestion/<%= question.question_id %>'">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <p class="question-text"><%= question.question_text %></p>
+                            
+                            <div class="options-grid">
+                                <% question.options.forEach((option, optIndex) => { %>
+                                    <div class="option-item <%= option[1] === 1 ? 'correct' : '' %>">
+                                        <%= String.fromCharCode(65 + optIndex) %>. <%= option[0] %>
+                                        <% if (option[1] === 1) { %>
+                                            <i class="fas fa-check"></i>
+                                        <% } %>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Add Question Modal -->
+    <div id="addQuestionModal" class="modal">
+        <div class="modal-content">
+            <form id="questionForm" onsubmit="submitQuestion(event)">
+                <!-- Header with Question Input -->
+                <div class="modal-header">
+                    <div class="header-content">
+                        <div class="header-title">
+                            <i class="fas fa-plus"></i>
+                            <h2>Add New Question</h2>
+                        </div>
+                        <textarea 
+                            id="questionText" 
+                            name="questionText" 
+                            placeholder="Enter your question here..."
+                            required
+                        ></textarea>
+                    </div>
+                    <button class="close-btn" onclick="closeModal()" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Options Section -->
+                <div class="options-container">
+                    <div class="input-label">
+                        <i class="fas fa-list-ul"></i>
+                        <label>Answer Options</label>
+                    </div>
+                    <div class="options-wrapper">
+                        <div id="optionsList">
+                            <div class="option-input">
+                                <div class="option-number">A</div>
+                                <input type="radio" name="correctOption" value="0" required>
+                                <input type="text" name="options[]" placeholder="Enter option 1" required>
+                            </div>
+                            <div class="option-input">
+                                <div class="option-number">B</div>
+                                <input type="radio" name="correctOption" value="1">
+                                <input type="text" name="options[]" placeholder="Enter option 2" required>
+                            </div>
+                            <div class="option-input">
+                                <div class="option-number">C</div>
+                                <input type="radio" name="correctOption" value="2">
+                                <input type="text" name="options[]" placeholder="Enter option 3" required>
+                            </div>
+                            <div class="option-input">
+                                <div class="option-number">D</div>
+                                <input type="radio" name="correctOption" value="3">
+                                <input type="text" name="options[]" placeholder="Enter option 4" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-check"></i> Save Question
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('addQuestionModal');
+        let optionCount = 4;
+
+        function openModal() {
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            document.getElementById('questionForm').reset();
+            resetOptions();
+        }
+
+        function addOption() {
+            if (optionCount < 4) {  // Maximum 4 options
+                optionCount++;
+                const optionsList = document.getElementById('optionsList');
+                const newOption = document.createElement('div');
+                newOption.className = 'option-input';
+                newOption.innerHTML = `
+                    <input type="radio" name="correctOption" value="${optionCount - 1}">
+                    <input type="text" name="options[]" placeholder="Option ${optionCount}" required>
+                    <button type="button" class="remove-option" onclick="removeOption(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                optionsList.appendChild(newOption);
+                updateRemoveButtons();
+            }
+        }
+
+        function removeOption(button) {
+            if (optionCount > 2) {  // Minimum 2 options
+                button.parentElement.remove();
+                optionCount--;
+                updateRemoveButtons();
+                // Update radio button values
+                const radios = document.querySelectorAll('input[name="correctOption"]');
+                radios.forEach((radio, index) => {
+                    radio.value = index;
+                });
+            }
+        }
+
+        function updateRemoveButtons() {
+            const removeButtons = document.querySelectorAll('.remove-option');
+            removeButtons.forEach(button => {
+                button.disabled = optionCount <= 2;
+            });
+        }
+
+        function resetOptions() {
+            const optionsList = document.getElementById('optionsList');
+            optionsList.innerHTML = `
+                <div class="option-input">
+                    <input type="radio" name="correctOption" value="0" required>
+                    <input type="text" name="options[]" placeholder="Option 1" required>
+                    <button type="button" class="remove-option" onclick="removeOption(this)" disabled>
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correctOption" value="1">
+                    <input type="text" name="options[]" placeholder="Option 2" required>
+                    <button type="button" class="remove-option" onclick="removeOption(this)" disabled>
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correctOption" value="2">
+                    <input type="text" name="options[]" placeholder="Option 3" required>
+                    <button type="button" class="remove-option" onclick="removeOption(this)" disabled>
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correctOption" value="3">
+                    <input type="text" name="options[]" placeholder="Option 4" required>
+                    <button type="button" class="remove-option" onclick="removeOption(this)" disabled>
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            optionCount = 4;
+        }
+
+        async function submitQuestion(event) {
+            console.log("submitQuestion");
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const correctOption = formData.get('correctOption');
+            const options = formData.getAll('options[]');
+            
+            const questionData = {
+                question_text: formData.get('questionText'),
+                subject_id: <%= subject.subject_id %>,
+                options: options.map((text, index) => ({
+                    option_text: text,
+                    is_correct: index === parseInt(correctOption) ? 1 : 0
+                }))
+            };
+            console.log(questionData);
+            try {
+                const response = await fetch('/admin/addQuestion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(questionData)
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    window.location.reload(); // Refresh to show new question
+                } else {
+                    throw new Error('Failed to add question');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to add question. Please try again.');
+            }
+        }
+
+        // Close modal if clicked outside
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
