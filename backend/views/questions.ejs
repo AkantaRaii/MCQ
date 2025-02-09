@@ -47,13 +47,15 @@
                                 <span class="question-number"><%= index + 1 %></span>
                                 <div class="question-actions">
                                     <button class="action-btn edit-btn" title="Edit"
-                                            onclick="window.location.href='/admin/editQuestion/<%= question.question_id %>'">
+                                            onclick="editQuestion('<%= question.question_id %>', '<%= question.question_text %>', <%= JSON.stringify(question.options) %>)">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="action-btn delete-btn" title="Delete">
+                                    <button class="action-btn delete-btn" title="Delete"
+                                    onclick="deleteQuestion('<%= question.question_id %>')">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
+
                             </div>
                             
                             <p class="question-text"><%= question.question_text %></p>
@@ -130,6 +132,8 @@
                     </div>
                 </div>
 
+                <input type="hidden" id="subjectId" value="<%= subject.subject_id %>">
+
                 <div class="modal-actions">
                     <button type="submit" class="submit-btn">
                         <i class="fas fa-check"></i> Save Question
@@ -139,136 +143,6 @@
         </div>
     </div>
 
-    <script>
-        const modal = document.getElementById('addQuestionModal');
-        let optionCount = 4;
-
-        function openModal() {
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            modal.style.display = 'none';
-            document.getElementById('questionForm').reset();
-            resetOptions();
-        }
-
-        function addOption() {
-            if (optionCount < 4) {  // Maximum 4 options
-                optionCount++;
-                const optionsList = document.getElementById('optionsList');
-                const newOption = document.createElement('div');
-                newOption.className = 'option-input';
-                newOption.innerHTML = `
-                    <input type="radio" name="correctOption" value="${optionCount - 1}">
-                    <input type="text" name="options[]" placeholder="Option ${optionCount}" required>
-                    <button type="button" class="remove-option" onclick="removeOption(this)">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-                optionsList.appendChild(newOption);
-                updateRemoveButtons();
-            }
-        }
-
-        function removeOption(button) {
-            if (optionCount > 2) {  // Minimum 2 options
-                button.parentElement.remove();
-                optionCount--;
-                updateRemoveButtons();
-                // Update radio button values
-                const radios = document.querySelectorAll('input[name="correctOption"]');
-                radios.forEach((radio, index) => {
-                    radio.value = index;
-                });
-            }
-        }
-
-        function updateRemoveButtons() {
-            const removeButtons = document.querySelectorAll('.remove-option');
-            removeButtons.forEach(button => {
-                button.disabled = optionCount <= 2;
-            });
-        }
-
-        function resetOptions() {
-            const optionsList = document.getElementById('optionsList');
-            optionsList.innerHTML = `
-                <div class="option-input">
-                    <input type="radio" name="correctOption" value="0" required>
-                    <input type="text" name="options[]" placeholder="Option 1" required>
-                    <button type="button" class="remove-option" onclick="removeOption(this)" disabled>
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="option-input">
-                    <input type="radio" name="correctOption" value="1">
-                    <input type="text" name="options[]" placeholder="Option 2" required>
-                    <button type="button" class="remove-option" onclick="removeOption(this)" disabled>
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="option-input">
-                    <input type="radio" name="correctOption" value="2">
-                    <input type="text" name="options[]" placeholder="Option 3" required>
-                    <button type="button" class="remove-option" onclick="removeOption(this)" disabled>
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="option-input">
-                    <input type="radio" name="correctOption" value="3">
-                    <input type="text" name="options[]" placeholder="Option 4" required>
-                    <button type="button" class="remove-option" onclick="removeOption(this)" disabled>
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `;
-            optionCount = 4;
-        }
-
-        async function submitQuestion(event) {
-            console.log("submitQuestion");
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const correctOption = formData.get('correctOption');
-            const options = formData.getAll('options[]');
-            
-            const questionData = {
-                question_text: formData.get('questionText'),
-                subject_id: <%= subject.subject_id %>,
-                options: options.map((text, index) => ({
-                    option_text: text,
-                    is_correct: index === parseInt(correctOption) ? 1 : 0
-                }))
-            };
-            console.log(questionData);
-            try {
-                const response = await fetch('/admin/addQuestion', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(questionData)
-                });
-
-                if (response.ok) {
-                    closeModal();
-                    window.location.reload(); // Refresh to show new question
-                } else {
-                    throw new Error('Failed to add question');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to add question. Please try again.');
-            }
-        }
-
-        // Close modal if clicked outside
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
-    </script>
+    <script src="/js/questions.js"></script>
 </body>
 </html>

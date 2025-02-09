@@ -25,5 +25,5 @@ router.get('/questions/:subject_id',showQuestion);
 router.get('/manageQuestion/:subject_id',manageQuestion);
 router.post('/addQuestion',addQuestion);
 router.delete('/deleteQuestion',deleteQuestion);
-router.put('/updateQuestion',updateQuestion);
-module.exports = router;
+router.post('/updateQuestion',updateQuestion); // add question ra edit question ma ternary chalako le (public/js/questions.js)
+module.exports = router;                       // update ma pani post use gareko

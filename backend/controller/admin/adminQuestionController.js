@@ -149,17 +149,36 @@ exports.addQuestion=async(req,res)=>{
     }
 }
 exports.deleteQuestion=async(req,res)=>{
-
+    console.log('deleteQuestion');
+    const{questionId}=req.body;
     try {
-        
+        const result=await db.promise().query('delete from questions where question_id=?',[questionId]);
+        return res.status(200).json({
+            message: "Question deleted successfully",
+            questionId: questionId
+        })
     } catch (error) {
-        
+        res.status(500).json({
+            message: "Error deleting question",
+            error: error.message
+        })
     }
 }
 exports.updateQuestion=async(req,res)=>{
     try {
-        
+        const{question_id,subject_id,question_text,options}=req.body;
+        const result=await db.promise().query('update questions set question_text=? where question_id=?',[question_text,question_id]);
+        for (let i=0;i<options.length;i++){
+            const result=await db.promise().query('update Options set option_text=?,is_correct=? where question_id=? and option_text=?',[options[i].option_text,options[i].is_correct,question_id,options[i].old_option_text]);
+        }
+        return res.status(200).json({
+            message: "Question updated successfully",
+            question_id: question_id
+        })
     } catch (error) {
-        
+        res.status(500).json({
+            message: "Error updating question",
+            error: error.message
+        })
     }
 }
