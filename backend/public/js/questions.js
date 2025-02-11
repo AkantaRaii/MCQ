@@ -48,7 +48,8 @@ async function submitQuestion(event) {
     const formData = new FormData(event.target);
     const correctOption = formData.get('correctOption');
     const newOptions = formData.getAll('options[]');
-    const subject_id = document.getElementById('subject_id').value;
+    const subject_id = document.getElementById('subjectId').value;
+    console.log('test');
     
     const questionData = {
         question_text: formData.get('questionText'),
@@ -59,7 +60,7 @@ async function submitQuestion(event) {
             is_correct: index === parseInt(correctOption) ? 1 : 0
         }))
     };
-
+    console.log(questionData);
     if (isEditing && editQuestionId) {
         questionData.question_id = editQuestionId;
         page=document.getElementById('current_page').value;
@@ -145,5 +146,34 @@ async function loadPage(page) {
     } catch (error) {
         console.error('Error loading page:', error);
         alert('Failed to load page. Please try again.');
+    }
+}
+
+// Add these pagination functions
+function handlePageInputKeyPress(event) {
+    if (event.key === 'Enter') {
+        const input = event.target;
+        const page = parseInt(input.value);
+        const max = parseInt(input.max);
+        const min = parseInt(input.min);
+        
+        if (page >= min && page <= max) {
+            loadPage(page);
+        } else {
+            // Reset to current page if invalid
+            input.value = document.getElementById('current_page').value;
+        }
+    }
+}
+
+function handlePageInputBlur(event) {
+    const input = event.target;
+    const page = parseInt(input.value);
+    const max = parseInt(input.max);
+    const min = parseInt(input.min);
+    
+    // Reset to current page if invalid
+    if (!page || page < min || page > max) {
+        input.value = document.getElementById('current_page').value;
     }
 }

@@ -3,39 +3,52 @@ const db= require("../../models/db");
 exports.showQuestion= async(req,res)=>{
     try {
         const subject_id = req.params.subject_id;
-        //get total number of questions
-        const no_of_options=4;
-        const limit=9;
-        const [[{count}]]=await db.promise().query('SELECT COUNT(*)as count FROM questions WHERE subject_id = ?',[subject_id]);
-        const total_pages=Math.ceil(count/limit);
-        //check if page is out of range
-        const page=parseInt(req.query.page)||total_pages;
-        if (page<1){
-            page=1;
-        }else if (page>total_pages){
-            page=total_pages;
-        }
-        if (page<1){
-            page=1;
-        }
-        if (page>total_pages){
-            page=total_pages;
-        }
-        const offset=(page-1)*limit||0;
-        // Get subject and course info
+        const no_of_options = 4;
+        const limit = 9;
+
+        // Get subject info first
         const [[subject]] = await db.promise().query(
             'SELECT subjects.*, courses.course_name FROM subjects JOIN courses ON subjects.course_id = courses.course_id WHERE subjects.subject_id = ?',
             [subject_id]
         );
+
+        // Get total count of questions
+        const [[{count}]] = await db.promise().query(
+            'SELECT COUNT(*) as count FROM questions WHERE subject_id = ?',
+            [subject_id]
+        );
+
+        // If no questions exist, return early with empty data
+        if (count === 0) {
+            return res.status(200).render('questions', {
+                questions: [],
+                subject: {
+                    subject_id: subject.subject_id,
+                    subject_name: subject.subject_name,
+                    course_id: subject.course_id,
+                    course_name: subject.course_name,
+                    total_pages: 1,
+                    current_page: 1
+                }
+            });
+        }
+
+        // Calculate pagination values
+        const total_pages = Math.ceil(count/limit);
+        const page = parseInt(req.query.page) || total_pages;
+        
+        // Validate page number
+        const validatedPage = Math.max(1, Math.min(page, total_pages));
+        const offset = (validatedPage - 1) * limit || 0;
         
         // Get questions and options
         const result = await db.promise().query(
             'SELECT * FROM questions join Options on questions.question_id=Options.question_id where questions.subject_id=? LIMIT ? OFFSET ?',
-            [subject_id,limit*no_of_options,offset*no_of_options]
+            [subject_id, limit*no_of_options, offset*no_of_options]
         );
         const questions = result[0];
         
-        // Format the data (keeping your existing logic)
+        // Format the data
         let formatted_data = [];
         let question_id = [];
         for (let i = 0; i < questions.length; i++) {
@@ -45,16 +58,16 @@ exports.showQuestion= async(req,res)=>{
                 question_id.push(question.question_id);
                 obj.question_id = question.question_id;
                 obj.question_text = question.question_text;
-                obj.options = [[question.option_text,question.is_correct]];
+                obj.options = [[question.option_text, question.is_correct]];
                 formatted_data.push(obj);
             } else {
-                formatted_data.forEach(obj=>{
-                    if(obj.question_id==question.question_id){
-                        obj.options.push([question.option_text,question.is_correct]);
+                formatted_data.forEach(obj => {
+                    if(obj.question_id == question.question_id) {
+                        obj.options.push([question.option_text, question.is_correct]);
                     }
-                })
+                });
             }
-        };
+        }
 
         res.status(200).render('questions', {
             questions: formatted_data,
@@ -64,14 +77,14 @@ exports.showQuestion= async(req,res)=>{
                 course_id: subject.course_id,
                 course_name: subject.course_name,
                 total_pages: total_pages,
-                current_page: page
+                current_page: validatedPage
             }
         });
     } catch (error) {
         res.status(500).json({
             message: "Error fetching questions",
             error: error.message
-        })
+        });
     }
 }
 

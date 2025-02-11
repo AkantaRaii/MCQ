@@ -85,16 +85,55 @@
                             </button>
                             
                             <div class="page-numbers">
-                                <% for(let i = 1; i <= subject.total_pages; i++) { %>
-                                    <button class="page-btn number-btn <%= i === subject.current_page ? 'active' : '' %>" 
+                                <% 
+                                const current = parseInt(subject.current_page);
+                                const total = parseInt(subject.total_pages);
+                                const delta = 2; // Number of pages to show before and after current page
+                                
+                                // Always show first page
+                                if (current > 1) { %>
+                                    <button class="page-btn" onclick="loadPage(1)">1</button>
+                                <% }
+                                
+                                // Show dots after first page if needed
+                                if (current > delta + 2) { %>
+                                    <span class="ellipsis">...</span>
+                                <% }
+                                
+                                // Show pages around current page
+                                for(let i = Math.max(2, current - delta); i <= Math.min(total - 1, current + delta); i++) { %>
+                                    <button class="page-btn <%= i === current ? 'active' : '' %>" 
                                             onclick="loadPage(<%= i %>)">
                                         <%= i %>
                                     </button>
+                                <% }
+                                
+                                // Show dots before last page if needed
+                                if (current < total - delta - 1) { %>
+                                    <span class="ellipsis">...</span>
+                                <% }
+                                
+                                // Always show last page if not already shown
+                                if (current < total) { %>
+                                    <button class="page-btn" onclick="loadPage(<%= total %>)"><%= total %></button>
                                 <% } %>
                             </div>
 
-                            <button class="page-btn next-btn" onclick="loadPage(<%= subject.current_page + 1 %>)"
-                                    <%= subject.current_page === subject.total_pages ? 'disabled' : '' %>>
+                            <div class="page-input-container">
+                                <label for="pageInput" class="page-total">Page</label>
+                                <input type="number" 
+                                       id="pageInput"
+                                       class="page-input" 
+                                       min="1" 
+                                       max="<%= total %>" 
+                                       value="<%= current %>"
+                                       onkeypress="handlePageInputKeyPress(event)"
+                                       onblur="handlePageInputBlur(event)">
+                                <span class="page-total">of <%= total %></span>
+                            </div>
+
+                            <button class="page-btn next-btn" onclick="loadPage(<%= current + 1 %>)"
+                                    <%= current === total ? 'disabled' : '' %>>
                                 <i class="fas fa-chevron-right"></i>
                             </button>
                         </div>

@@ -12,7 +12,7 @@
 
 .questions-container {
     padding: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 80px;
 }
 
 .questions-list {
@@ -48,8 +48,7 @@
     color: var(--white);
     padding: 2px 8px;
     border-radius: 12px;
-    font-size: 0.85em;
-    font-family: monospace;
+    font-size: 0.8em;
 }
 
 .question-actions {
@@ -264,26 +263,40 @@
     }
 }
 
-/* Add these styles to your existing questions.css */
+/* Update the pagination styles */
 .pagination-container {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    padding: 15px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 900;
 }
 
 .pagination {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: var(--white);
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .page-numbers {
     display: flex;
+    align-items: center;
     gap: 5px;
+    max-width: 400px;
+    overflow-x: auto;
+    padding: 0 5px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.page-numbers::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .page-btn {
@@ -327,10 +340,99 @@
         font-size: 0.9em;
     }
     
-    /* Hide some page numbers on mobile if there are too many */
     .page-numbers {
-        max-width: 200px;
-        overflow-x: auto;
-        padding: 0 5px;
+        max-width: 150px;
+    }
+    
+    .page-input {
+        width: 45px;
+    }
+}
+
+/* Add these pagination styles */
+.ellipsis {
+    color: var(--text-secondary);
+    padding: 0 5px;
+}
+
+/* Update the page input container and input styles */
+.page-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 15px;
+    background: var(--gray-light);
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+.page-input {
+    width: 60px;
+    padding: 8px;
+    border: 2px solid var(--primary);
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1em;
+    font-weight: 500;
+    color: var(--primary);
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.page-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+    border-color: var(--primary-dark);
+}
+
+/* Remove default number input spinners */
+.page-input::-webkit-inner-spin-button,
+.page-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.page-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.page-total {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .page-input-container {
+        margin: 0 8px;
+        padding: 4px 8px;
+    }
+
+    .page-input {
+        width: 45px;
+        padding: 6px;
+    }
+}
+
+/* Update existing pagination styles */
+.page-numbers {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+@media (max-width: 768px) {
+    .page-numbers .page-btn:not(.active) {
+        display: none;
+    }
+    
+    .page-numbers .page-btn.active {
+        display: inline-flex;
+    }
+    
+    .ellipsis {
+        display: none;
     }
 }

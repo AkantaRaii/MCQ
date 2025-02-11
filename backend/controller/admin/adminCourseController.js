@@ -5,7 +5,6 @@ const db=require("../../models/db");   //Import the db module form the models fo
 exports.showCourses = async (req, res) => {
     try{
         const [courses] = await db.promise().query('SELECT * FROM Courses'); 
-        console.log(courses); // Debugging
         
         return res.status(200).render('course', { courses }); 
 
@@ -17,7 +16,6 @@ exports.showCourses = async (req, res) => {
 exports.manageCourses = async (req, res) => {
     try{
         const [courses] = await db.promise().query('SELECT * FROM Courses'); 
-        console.log(courses); // Debugging
         
         return res.status(200).render('manageCourse', { courses }); 
 
@@ -27,7 +25,6 @@ exports.manageCourses = async (req, res) => {
     }
 }
 exports.updateCourse=async(req,res)=>{
-    console.log("test");
     const {courseId,course}=req.body;
     if (!courseId || !course){
         return res.status(400).json({message:'client error course id or course name not recieved'});
@@ -60,7 +57,6 @@ exports.addCourse = async (req, res) => {
 }
 exports.deleteCourse = async (req, res) => {
     const {courseId}=req.body;
-    console.log(courseId);
     if (!courseId){
         return res.status(400).json({message:'client error course id not recieved'});
     }
