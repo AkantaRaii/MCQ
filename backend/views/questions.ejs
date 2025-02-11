@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questions</title>
+    <link rel="stylesheet" href="/css/course.css">
+    <link rel="stylesheet" href="/css/questions.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Breadcrumb navigation -->
+        <nav class="breadcrumb">
+            <a href="/admin/courses"><i class="fas fa-home"></i> Courses</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="/admin/subjects/<%= subject.course_id %>"><%= subject.course_name %></a>
+            <i class="fas fa-chevron-right"></i>
+            <span><%= subject.subject_name %></span>
+        </nav>
+
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Questions Bank</h1>
+                <p class="subject-subtitle">Subject: <%= subject.subject_name %></p>
+            </div>
+            <button class="add-course-btn" onclick="openModal()">
+                <i class="fas fa-plus"></i> Add Question
+            </button>
+        </header>
+
+        <div class="questions-container">
+            <% if (questions.length === 0) { %>
+                <div class="empty-state">
+                    <i class="fas fa-question-circle empty-icon"></i>
+                    <h2>No Questions Available</h2>
+                    <p>Start building your question bank by adding questions</p>
+                    <button class="add-course-btn" onclick="openModal()">
+                        <i class="fas fa-plus"></i> Add Question
+                    </button>
+                </div>
+            <% } else { %>
+                <div class="questions-grid">
+                    <% questions.forEach((question) => { %>
+                        <div class="question-card">
+                            <div class="question-header">
+                                <span class="question-number">#<%= question.question_id %></span>
+                                <div class="question-actions">
+                                    <button class="action-btn edit-btn" title="Edit"
+                                            onclick="editQuestion('<%= question.question_id %>', '<%= question.question_text %>', <%= JSON.stringify(question.options) %>)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" title="Delete"
+                                            onclick="deleteQuestion('<%= question.question_id %>')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <p class="question-text"><%= question.question_text %></p>
+                            
+                            <div class="options-grid">
+                                <% question.options.forEach((option, optIndex) => { %>
+                                    <div class="option-item <%= option[1] === 1 ? 'correct' : '' %>">
+                                        <%= String.fromCharCode(65 + optIndex) %>. <%= option[0] %>
+                                        <% if (option[1] === 1) { %>
+                                            <i class="fas fa-check"></i>
+                                        <% } %>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+                <% if (questions.length > 0) { %>
+                    <div class="pagination-container">
+                        <input type="hidden" id="subject_id" value="<%= subject.subject_id %>">
+                        <input type="hidden" id="total_pages" value="<%= subject.total_pages %>">
+                        <input type="hidden" id="current_page" value="<%= subject.current_page %>">
+                        
+                        <div class="pagination">
+                            <button class="page-btn prev-btn" onclick="loadPage(<%= subject.current_page - 1 %>)" 
+                                    <%= subject.current_page === 1 ? 'disabled' : '' %>>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            
+                            <div class="page-numbers">
+                                <% for(let i = 1; i <= subject.total_pages; i++) { %>
+                                    <button class="page-btn number-btn <%= i === subject.current_page ? 'active' : '' %>" 
+                                            onclick="loadPage(<%= i %>)">
+                                        <%= i %>
+                                    </button>
+                                <% } %>
+                            </div>
+
+                            <button class="page-btn next-btn" onclick="loadPage(<%= subject.current_page + 1 %>)"
+                                    <%= subject.current_page === subject.total_pages ? 'disabled' : '' %>>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                <% } %>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Add Question Modal -->
+    <div id="addQuestionModal" class="modal">
+        <div class="modal-content">
+            <form id="questionForm" onsubmit="submitQuestion(event)">
+                <!-- Header with Question Input -->
+                <div class="modal-header">
+                    <div class="header-content">
+                        <div class="header-title">
+                            <i class="fas fa-plus"></i>
+                            <h2>Add New Question</h2>
+                        </div>
+                        <textarea 
+                            id="questionText" 
+                            name="questionText" 
+                            placeholder="Enter your question here..."
+                            required
+                        ></textarea>
+                    </div>
+                    <button class="close-btn" onclick="closeModal()" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Options Section -->
+                <div class="options-container">
+                    <div class="input-label">
+                        <i class="fas fa-list-ul"></i>
+                        <label>Answer Options</label>
+                    </div>
+                    <div class="options-wrapper">
+                        <div id="optionsList">
+                            <div class="option-input">
+                                <div class="option-number">A</div>
+                                <input type="radio" name="correctOption" value="0" required>
+                                <input type="text" name="options[]" placeholder="Enter option 1" required>
+                            </div>
+                            <div class="option-input">
+                                <div class="option-number">B</div>
+                                <input type="radio" name="correctOption" value="1">
+                                <input type="text" name="options[]" placeholder="Enter option 2" required>
+                            </div>
+                            <div class="option-input">
+                                <div class="option-number">C</div>
+                                <input type="radio" name="correctOption" value="2">
+                                <input type="text" name="options[]" placeholder="Enter option 3" required>
+                            </div>
+                            <div class="option-input">
+                                <div class="option-number">D</div>
+                                <input type="radio" name="correctOption" value="3">
+                                <input type="text" name="options[]" placeholder="Enter option 4" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="subjectId" value="<%= subject.subject_id %>">
+
+                <div class="modal-actions">
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-check"></i> Save Question
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/questions.js"></script>
+</body>
+</html>

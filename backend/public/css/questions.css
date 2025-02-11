@@ -1,0 +1,336 @@
+.header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.subject-subtitle {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.questions-container {
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.questions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    padding: 15px;
+}
+
+.question-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 0.9em;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.question-number {
+    background: var(--primary);
+    color: var(--white);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-family: monospace;
+}
+
+.question-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.action-btn {
+    border: none;
+    background: none;
+    padding: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.edit-btn { color: var(--primary); }
+.delete-btn { color: var(--danger); }
+
+.question-text {
+    margin: 8px 0;
+    font-size: 0.95em;
+    line-height: 1.4;
+    color: var(--text-primary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.option-item {
+    background: var(--gray-light);
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.option-item.correct {
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid #4CAF50;
+}
+
+.option-item i {
+    font-size: 0.8em;
+    color: #4CAF50;
+}
+
+.correct-badge {
+    background: #4CAF50;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 50px;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.empty-icon {
+    font-size: 4em;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.empty-state h2 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin: 10px 0 20px 0;
+}
+
+@media (max-width: 768px) {
+    .questions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 50px;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.header-title i {
+    color: #2196F3;
+}
+
+.header-title h2 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #000;
+}
+
+#questionText {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    border: 2px solid #2196F3;
+    border-radius: 8px;
+    resize: none;
+    font-size: 0.95em;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    color: #666;
+    cursor: pointer;
+}
+
+.input-label {
+    color: #666;
+    margin: 15px 0;
+}
+
+.option-input {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.option-number {
+    color: #2196F3;
+    font-weight: bold;
+    width: 20px;
+}
+
+.option-input input[type="radio"] {
+    margin: 0;
+}
+
+.option-input input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.95em;
+}
+
+.submit-btn {
+    background: #2196F3;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+    margin-top: 15px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+}
+
+/* Add these styles to your existing questions.css */
+.pagination-container {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--white);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.page-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+.page-btn {
+    border: none;
+    background: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.page-btn.active {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.page-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.prev-btn, .next-btn {
+    font-size: 0.9em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pagination {
+        padding: 8px;
+        gap: 5px;
+    }
+
+    .page-btn {
+        padding: 6px 10px;
+        font-size: 0.9em;
+    }
+    
+    /* Hide some page numbers on mobile if there are too many */
+    .page-numbers {
+        max-width: 200px;
+        overflow-x: auto;
+        padding: 0 5px;
+    }
+}
