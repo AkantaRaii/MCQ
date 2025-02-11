@@ -6,10 +6,8 @@ exports.showSubjects= async (req,res)=>{
         const courseId = req.params.course_id;
         const result=await db.promise().query('SELECT * FROM Subjects WHERE course_id=?',[courseId]);
         const [result2]=await db.promise().query('SELECT * FROM Courses WHERE course_id=?',[courseId]);
-        console.log(result2)
         return res.status(200).render('subjects',{course:result2[0],subjects:result[0]});
     }catch(err){
-        console.log("Error in fetching the subjects",err);
         return res.status(500).json({message:"error in fetching the subjects"});
     }
 }
@@ -20,7 +18,6 @@ exports.manageSubjects= async (req,res)=>{
         const [result2]=await db.promise().query('SELECT * FROM Courses WHERE course_id=?',[courseId]);
         return res.status(200).render('manageSubject',{course:result2[0],subjects:result[0]});
     }catch(err){
-        console.log("Error in fetching the subjects",err);
         return res.status(500).json({message:"error in fetching the subjects"});
     }
 }
@@ -33,18 +30,15 @@ exports.addSubject= async (req,res)=>{
         );
         return res.status(200).json({subject:latestCourse[0]});
     }catch(err){
-        console.log("Error in adding the subject",err);
         return res.status(500).json({message:"error in adding the subject"});
     }
 }
 exports.deleteSubject= async (req,res)=>{
-    console.log("test");
     try{
         const {subject_id}=req.body;
         await db.promise().execute('DELETE FROM Subjects WHERE subject_id=?',[subject_id]);
         return res.status(200).json({message:"subject deleted"});
     }catch(err){
-        console.log("Error in deleting the subject",err);
         return res.status(500).json({message:"error in deleting the subject"});
     }
 }  
@@ -55,7 +49,6 @@ exports.updateSubject= async (req,res)=>{
         await db.promise().execute('UPDATE Subjects SET subject_name=? WHERE subject_id=?',[subject_name,subject_id]);
         return res.status(200).json({message:"subject updated"});
     }catch(err){
-        console.log("Error in updating the subject",err);
         return res.status(500).json({message:"error in updating the subject"});
     }
 }

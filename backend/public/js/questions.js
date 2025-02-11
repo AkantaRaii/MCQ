@@ -3,7 +3,7 @@ const modal = document.getElementById('addQuestionModal');
 let isEditing = false;
 let editQuestionId = null;
 let oldOptions = []; // Store original options when editing
-
+let page = Infinity;
 function openModal() {
     modal.style.display = 'flex';
     isEditing = false;
@@ -48,6 +48,7 @@ async function submitQuestion(event) {
     const formData = new FormData(event.target);
     const correctOption = formData.get('correctOption');
     const newOptions = formData.getAll('options[]');
+    const subject_id = document.getElementById('subject_id').value;
     
     const questionData = {
         question_text: formData.get('questionText'),
@@ -61,8 +62,8 @@ async function submitQuestion(event) {
 
     if (isEditing && editQuestionId) {
         questionData.question_id = editQuestionId;
+        page=document.getElementById('current_page').value;
     }
-    console.log(questionData);
 
     try {
         const response = await fetch(`/admin/${isEditing ? 'updateQuestion' : 'addQuestion'}`, {
@@ -75,7 +76,9 @@ async function submitQuestion(event) {
 
         if (response.ok) {
             closeModal();
-            window.location.reload();
+            // window.location.reload();
+            window.location.href = `/admin/questions/${subject_id}?page=${page}`;
+
         } else {
             throw new Error(`Failed to ${isEditing ? 'update' : 'add'} question`);
         }
@@ -92,7 +95,6 @@ window.onclick = function(event) {
     }
 } 
 async function deleteQuestion(questionId){
-    console.log(questionId);
     try {
         const response = await fetch(`/admin/deleteQuestion`, {
 
@@ -115,4 +117,33 @@ async function deleteQuestion(questionId){
     }
 
     window.location.reload();
+}
+
+async function loadPage(page) {
+    page = parseInt(page);
+    const subject_id = document.getElementById('subject_id').value;
+    const total_pages = parseInt(document.getElementById('total_pages').value);
+    
+    // Validate page number
+    if (page < 1 || page > total_pages) return;
+    
+    try {
+        const response = await fetch(`/admin/questions/${subject_id}?page=${page}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to load page');
+        }
+        
+        // Reload the page with the page parameter in the URL
+        window.location.href = `/admin/questions/${subject_id}?page=${page}`;
+        
+    } catch (error) {
+        console.error('Error loading page:', error);
+        alert('Failed to load page. Please try again.');
+    }
 }

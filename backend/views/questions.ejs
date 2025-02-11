@@ -41,21 +41,20 @@
                 </div>
             <% } else { %>
                 <div class="questions-grid">
-                    <% questions.forEach((question, index) => { %>
+                    <% questions.forEach((question) => { %>
                         <div class="question-card">
                             <div class="question-header">
-                                <span class="question-number"><%= index + 1 %></span>
+                                <span class="question-number">#<%= question.question_id %></span>
                                 <div class="question-actions">
                                     <button class="action-btn edit-btn" title="Edit"
                                             onclick="editQuestion('<%= question.question_id %>', '<%= question.question_text %>', <%= JSON.stringify(question.options) %>)">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="action-btn delete-btn" title="Delete"
-                                    onclick="deleteQuestion('<%= question.question_id %>')">
+                                            onclick="deleteQuestion('<%= question.question_id %>')">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
-
                             </div>
                             
                             <p class="question-text"><%= question.question_text %></p>
@@ -73,6 +72,34 @@
                         </div>
                     <% }); %>
                 </div>
+                <% if (questions.length > 0) { %>
+                    <div class="pagination-container">
+                        <input type="hidden" id="subject_id" value="<%= subject.subject_id %>">
+                        <input type="hidden" id="total_pages" value="<%= subject.total_pages %>">
+                        <input type="hidden" id="current_page" value="<%= subject.current_page %>">
+                        
+                        <div class="pagination">
+                            <button class="page-btn prev-btn" onclick="loadPage(<%= subject.current_page - 1 %>)" 
+                                    <%= subject.current_page === 1 ? 'disabled' : '' %>>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            
+                            <div class="page-numbers">
+                                <% for(let i = 1; i <= subject.total_pages; i++) { %>
+                                    <button class="page-btn number-btn <%= i === subject.current_page ? 'active' : '' %>" 
+                                            onclick="loadPage(<%= i %>)">
+                                        <%= i %>
+                                    </button>
+                                <% } %>
+                            </div>
+
+                            <button class="page-btn next-btn" onclick="loadPage(<%= subject.current_page + 1 %>)"
+                                    <%= subject.current_page === subject.total_pages ? 'disabled' : '' %>>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                <% } %>
             <% } %>
         </div>
     </div>

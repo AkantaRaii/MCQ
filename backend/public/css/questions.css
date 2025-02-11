@@ -48,7 +48,8 @@
     color: var(--white);
     padding: 2px 8px;
     border-radius: 12px;
-    font-size: 0.8em;
+    font-size: 0.85em;
+    font-family: monospace;
 }
 
 .question-actions {
@@ -260,5 +261,76 @@
     .modal-content {
         width: 95%;
         padding: 15px;
+    }
+}
+
+/* Add these styles to your existing questions.css */
+.pagination-container {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--white);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.page-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+.page-btn {
+    border: none;
+    background: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.page-btn.active {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.page-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.prev-btn, .next-btn {
+    font-size: 0.9em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pagination {
+        padding: 8px;
+        gap: 5px;
+    }
+
+    .page-btn {
+        padding: 6px 10px;
+        font-size: 0.9em;
+    }
+    
+    /* Hide some page numbers on mobile if there are too many */
+    .page-numbers {
+        max-width: 200px;
+        overflow-x: auto;
+        padding: 0 5px;
     }
 }
