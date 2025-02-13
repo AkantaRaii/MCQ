@@ -20,6 +20,10 @@
     </form>
 
     <p>Don't have an account? <a href="signup">Sign Up</a></p>
+    <br>
+    <br>
+    <p><a href="forgotPassword">Forgot Password?</a></p>
+    <br><br>
 
     <button onclick="googleLogin()">Continue with Google</button>
     <button onclick="facebookLogin()">Continue with Facebook</button>
@@ -44,6 +48,7 @@
                 window.location.href = "/auth/dashboard"; // Redirect to Dashboard
             }
         });
+
 
         function googleLogin() {
             window.location.href = "http://localhost:3000/auth/google";
