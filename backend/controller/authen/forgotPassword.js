@@ -4,11 +4,23 @@ const db = require("../../models/db");
 require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",  // Host for Gmail
+  port: 587,               // Use port 587 for TLS
+  secure: false,           // Use false for non-SSL/TLS connections
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.EMAIL_USER,  // Your Gmail address
+    pass: process.env.EMAIL_PASS,  // Your 16-character App Password
   },
+});
+
+
+// Test the email configuration
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error("Email configuration error:", error);
+  } else {
+    console.log("Email server is ready to send messages");
+  }
 });
 
 exports.forgotPassword = async (req, res) => {

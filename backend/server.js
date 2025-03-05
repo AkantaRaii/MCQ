@@ -28,10 +28,14 @@ app.use(
     resave: false,
     saveUninitialized: false, // Ensure sessions are only stored when a user logs in
     cookie: {
+      name: 'mcq_session', // Custom cookie name
       maxAge: 3600000, // Session expires after 1 hour (3600000 ms)
     },
   })
 );
+
+
+console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID); // Debugging
 
 
 // Initialize Passport
@@ -54,7 +58,7 @@ app.use("/auth", authRoutes);
 
 // Default route
 app.get("/", (req, res) => {
-  res.render("index");
+  res.render("index");1
 });
 
 // Start the server

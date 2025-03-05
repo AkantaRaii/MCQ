@@ -1,12 +1,31 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Quiz App - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/index.css">
 </head>
 <body>
-    <h1>Welcome to the Quiz App</h1>
-    <a href="/auth/signup">Sign Up</a> | <a href="/auth/signin">Sign In</a>
+    <nav class="navbar">
+        <h2>Quiz App</h2>
+        <div class="nav-links">
+            <a href="/auth/signup" class="btn">Sign Up</a>
+            <a href="/auth/signin" class="btn btn-primary">Sign In</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Welcome to the Quiz App</h1>
+            <p>Test your knowledge and challenge yourself with our quizzes!</p>
+            <div class="btn-group">
+                <a href="/auth/signup" class="btn btn-large">Get Started</a>
+                <a href="/auth/signin" class="btn btn-outline">Login</a>
+            </div>
+        </div>
+    </header>
 </body>
 </html>
