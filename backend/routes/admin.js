@@ -4,12 +4,13 @@ const checkApiKey =require('../middleware/checkApiKey');    //Import the checkAp
 const {showCourses,addCourse,deleteCourse,updateCourse,manageCourses}=require('../controller/admin/adminCourseController'); //Import the showCourses and addCourse functions from the courseController
 const {showSubjects,manageSubjects,addSubject,deleteSubject,updateSubject}=require('../controller/admin/adminSubjectController'); //Import the showSubjects function from the subjectController
 const {showQuestion,manageQuestion,addQuestion,deleteQuestion,updateQuestion}=require('../controller/admin/adminQuestionController');
+const {isAuthenticated}=require('../middleware/isAuthenticated');
 router.get('/test', checkApiKey,(req, res) => {
     res.json({ message: 'Hello, world!' });
 });
 
 //Add the routes for the admin course management
-router.get('/courses',showCourses);
+router.get('/courses',isAuthenticated,showCourses);
 router.get("/manageCourse",manageCourses);
 router.post('/addCourse',addCourse);
 router.delete('/deleteCourse',deleteCourse);

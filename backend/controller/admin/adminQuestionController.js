@@ -8,13 +8,13 @@ exports.showQuestion= async(req,res)=>{
 
         // Get subject info first
         const [[subject]] = await db.promise().query(
-            'SELECT subjects.*, courses.course_name FROM subjects JOIN courses ON subjects.course_id = courses.course_id WHERE subjects.subject_id = ?',
+            'SELECT subjects.*, Courses.course_name FROM Subjects JOIN Courses ON Subjects.course_id = Courses.course_id WHERE Subjects.subject_id = ?',
             [subject_id]
         );
 
         // Get total count of questions
         const [[{count}]] = await db.promise().query(
-            'SELECT COUNT(*) as count FROM questions WHERE subject_id = ?',
+            'SELECT COUNT(*) as count FROM Questions WHERE subject_id = ?',
             [subject_id]
         );
 
@@ -43,7 +43,7 @@ exports.showQuestion= async(req,res)=>{
         
         // Get questions and options
         const result = await db.promise().query(
-            'SELECT * FROM questions join Options on questions.question_id=Options.question_id where questions.subject_id=? LIMIT ? OFFSET ?',
+            'SELECT * FROM Questions join Options on Questions.question_id=Options.question_id where Questions.subject_id=? LIMIT ? OFFSET ?',
             [subject_id, limit*no_of_options, offset*no_of_options]
         );
         const questions = result[0];
@@ -105,14 +105,14 @@ exports.manageQuestion=async(req,res)=>{
         
         // Get subject and course info
         const subjectResult = await db.promise().query(
-            'SELECT subjects.*, courses.course_name FROM subjects JOIN courses ON subjects.course_id = courses.course_id WHERE subjects.subject_id = ?',
+            'SELECT Subjects.*, Courses.course_name FROM Subjects JOIN Courses ON Subjects.course_id = Courses.course_id WHERE Subjects.subject_id = ?',
             [subject_id]
         );
         const subject = subjectResult[0][0];
 
         // Get questions and options
         const result = await db.promise().query(
-            'SELECT * FROM questions join Options on questions.question_id=Options.question_id where questions.subject_id=?',
+            'SELECT * FROM Questions join Options on Questions.question_id=Options.question_id where Questions.subject_id=?',
             [subject_id]
         );
         const questions = result[0];
@@ -157,8 +157,8 @@ exports.manageQuestion=async(req,res)=>{
 exports.addQuestion=async(req,res)=>{
     try {
         const{subject_id,question_text,options}=req.body;
-        const result=await db.promise().query('insert into questions(subject_id,question_text) values(?,?)',[subject_id,question_text]);
-        const result0=await db.promise().query('select question_id from questions where question_text=? ORDER BY created_at DESC LIMIT 1',[question_text]);
+        const result=await db.promise().query('insert into Questions(subject_id,question_text) values(?,?)',[subject_id,question_text]);
+        const result0=await db.promise().query('select question_id from Questions where question_text=? ORDER BY created_at DESC LIMIT 1',[question_text]);
         const id=result0[0][0].question_id;
         for (let i=0;i<options.length;i++){
             const result=await db.promise().query('INSERT INTO Options(question_id,option_text,is_correct) values(?,?,?)',[id,options[i].option_text,options[i].is_correct]);
@@ -180,7 +180,7 @@ exports.addQuestion=async(req,res)=>{
 exports.deleteQuestion=async(req,res)=>{
     const{questionId}=req.body;
     try {
-        const result=await db.promise().query('delete from questions where question_id=?',[questionId]);
+        const result=await db.promise().query('delete from Questions where question_id=?',[questionId]);
         return res.status(200).json({
             message: "Question deleted successfully",
             questionId: questionId
@@ -195,7 +195,7 @@ exports.deleteQuestion=async(req,res)=>{
 exports.updateQuestion=async(req,res)=>{
     try {
         const{question_id,subject_id,question_text,options}=req.body;
-        const result=await db.promise().query('update questions set question_text=? where question_id=?',[question_text,question_id]);
+        const result=await db.promise().query('update Questions set question_text=? where question_id=?',[question_text,question_id]);
         for (let i=0;i<options.length;i++){
             const result=await db.promise().query('update Options set option_text=?,is_correct=? where question_id=? and option_text=?',[options[i].option_text,options[i].is_correct,question_id,options[i].old_option_text]);
         }
