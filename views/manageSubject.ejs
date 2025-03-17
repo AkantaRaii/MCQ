@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Subjects</title>
+    <link rel="stylesheet" href="/css/course.css">
+    <link rel="stylesheet" href="/css/manageSubject.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Breadcrumb navigation -->
+        <nav class="breadcrumb">
+            <a href="/admin/courses"><i class="fas fa-home"></i> Courses</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="/admin/subjects/<%= course.course_id %>"><%= course.course_name %></a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Manage Subjects</span>
+        </nav>
+
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Manage Subjects</h1>
+                <p class="course-subtitle">Course: <%= course.course_name %></p>
+            </div>
+        </header>
+
+        <div class="manage-subjects-container">
+            <% if (subjects.length === 0) { %>
+                <div class="empty-state">
+                    <i class="fas fa-book-open empty-icon"></i>
+                    <h2>No Subjects Available</h2>
+                    <p>Get started by adding your first subject below</p>
+                </div>
+            <% } else { %>
+                <div class="hint-message">
+                    <i class="fas fa-info-circle"></i>
+                    Double-click on a subject to edit it
+                </div>
+                
+                <div class="subjects-list">
+                    <% subjects.forEach((subject, index) => { %>
+                        <div class="subject-item" id="card-<%= subject.subject_id %>" ondblclick="makeEditable(<%= subject.subject_id %>)">
+                            <div class="subject-content">
+                                <div class="subject-number"><%= index + 1 %></div>
+                                <div class="subject-name">
+                                    <span id="name-<%= subject.subject_id %>"><%= subject.subject_name %></span>
+                                </div>
+                                <div class="subject-actions">
+                                    <button id='edit-button-<%= subject.subject_id %>' class="action-btn edit-btn" onclick="makeEditable(<%= subject.subject_id %>); return false;">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button id='delete-button-<%= subject.subject_id %>' class="action-btn delete-btn" 
+                                        onclick="event.stopPropagation(); deleteSubject(<%= subject.subject_id %>, '<%= subject.subject_name %>')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </div>
+
+        <div class="add-subject-form">
+            <input type="text" id="newEntry" placeholder="Enter subject name" 
+                   onkeypress="if(event.key === 'Enter') addSubject(<%= course.course_id %>)">
+            <button class="add-course-btn" onclick="addSubject(<%= course.course_id %>)">
+                <i class="fas fa-plus"></i> Add New Subject
+            </button>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="overlay" class="overlay">
+        <div class="modal">
+            <div class="modal-content">
+                <i class="fas fa-exclamation-triangle warning-icon"></i>
+                <h3>Confirm Deletion</h3>
+                <p>Type <strong>"delete"</strong> to confirm</p>
+                <input type="text" id="confirmInput" placeholder="Type 'delete'">
+                <div class="modal-actions">
+                    <button id="confirmDelete" class="confirm-btn">Delete</button>
+                    <button id="cancelDelete" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/manageSubject.js"></script>
+</body>
+</html>
