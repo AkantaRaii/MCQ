@@ -1,11 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 exports.isAuthenticated = (req, res, next) => {
-    console.log('ya samma aayo la');
     try{
         const token = req.cookies.user_session;
         if (token) {
-            console.log('cookie aayo la');
             jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
                 if (err) {
                     console.error('Token verification failed:', err.message);
