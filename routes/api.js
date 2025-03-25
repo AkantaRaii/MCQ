@@ -1,14 +1,11 @@
 const express=require('express');
 const router=express.Router();
-const checkApiKey=require('../middleware/checkApiKey');
 const {getCourse}=require('../controller/api/apiCoursesController');
 const { getSubjects } = require('../controller/api/apiSubjectsController');
-const { getQuestions } = require('../controller/api/apiQuestionController');
-const { getOptions } = require('../controller/api/apiOptionController');
-const { route } = require('./admin');
+const { getQuestionsAnswers } = require('../controller/api/apiQuestionOptionController');
 
-router.get('/courses',getCourse);
-router.get('/course/:courseId/subjects/',getSubjects);
-router.get('/course/subject/:subjectId/question/:limit',getQuestions);
-router.get('/course/subject/question/option/:questionId',getOptions);
+router.get('/courses',getCourse);                                                               //provides all courses                                      
+router.get('/course/:courseId/subjects/',getSubjects);                                          //provides every subjects of a course
+router.get('/course/subject/:subjectId/questionoption/:limit',getQuestionsAnswers);             //provides question with options 
+
 module.exports=router;
