@@ -47,7 +47,9 @@
                                 <span class="question-number">#<%= question.question_id %></span>
                                 <div class="question-actions">
                                     <button class="action-btn edit-btn" title="Edit"
-                                            onclick="editQuestion('<%= question.question_id %>', '<%= question.question_text %>', <%= JSON.stringify(question.options) %>)">
+                                    <% const cleanedQuestionText = question.question_text.replace(/\r?\n|\r/g, '').replace(/'/g, "\\'"); %>
+                                    onclick="editQuestion('<%= question.question_id %>', '<%= cleanedQuestionText %>', <%= JSON.stringify(question.options) %>)">
+                                    
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="action-btn delete-btn" title="Delete"
