@@ -4,7 +4,14 @@ exports.showQuestion = async (req, res) => {
     try {
         const subject_id = req.params.subject_id;
         const limit = 9; // 9 questions per page
-        const page = Math.max(1, parseInt(req.query.page) || 1);
+        // 2. Get total question count
+        const [[{ count: questionCount }]] = await db.promise().query(
+            `SELECT COUNT(*) AS count FROM Questions WHERE subject_id = ?`,
+            [subject_id]
+        );
+        const total_pages = Math.ceil(questionCount / limit);
+
+        const page = Math.max(1, parseInt(req.query.page) || total_pages);
 
         // 1. Get subject & course info
         const [[subject]] = await db.promise().query(
@@ -15,12 +22,7 @@ exports.showQuestion = async (req, res) => {
             [subject_id]
         );
 
-        // 2. Get total question count
-        const [[{ count: questionCount }]] = await db.promise().query(
-            `SELECT COUNT(*) AS count FROM Questions WHERE subject_id = ?`,
-            [subject_id]
-        );
-
+        
         if (questionCount === 0) {
             return res.status(200).render('questions', {
                 questions: [],
@@ -32,7 +34,6 @@ exports.showQuestion = async (req, res) => {
             });
         }
 
-        const total_pages = Math.ceil(questionCount / limit);
         const offset = (page - 1) * limit;
 
         // 3. Get paginated questions
@@ -225,44 +226,30 @@ exports.updateQuestion=async(req,res)=>{
     }
 }
 
-exports.addBulkJSONQuestions=async(req,res)=>{
+exports.addBulkJSONQuestions = async (req, res) => {
     try {
         const { JSONQuestions, subject_id } = req.body;
+
         if (!JSONQuestions || !subject_id) {
             return res.status(400).json({ message: "Invalid input data" });
-        }   
-        console.log("Received JSONQuestions:", subject_id);
-        // Parse the JSON data
-        let questionsData;
-        try {
-            questionsData = JSON.parse(JSONQuestions);
-        } catch (error) {
-            return res.status(400).json({ message: "Invalid JSON format" });
         }
-        console.log("Received JSONQuestions:", questionsData);
 
-        // Validate the structure of the parsed data
-        if (!Array.isArray(questionsData) || questionsData.length === 0) {
+        if (!Array.isArray(JSONQuestions) || JSONQuestions.length === 0) {
             return res.status(400).json({ message: "No valid questions found in the JSON data" });
         }
 
-        // Insert each question and its options into the database
-        for (const question of questionsData) {
-            if (!question.question_text || !Array.isArray(question.options)) {
-                continue; // Skip invalid entries
-            }
-            console.log("Inserting question:", question.question_text);
-            const result = await db.promise().query(
+        for (const question of JSONQuestions) {
+            if (!question.question_text || !Array.isArray(question.options)) continue;
+
+            const [result] = await db.promise().query(
                 'INSERT INTO Questions (subject_id, question_text) VALUES (?, ?)',
                 [subject_id, question.question_text]
             );
-            const questionId = result[0].insertId;
-            console.log("Inserted question ID:", questionId);
+
+            const questionId = result.insertId;
+            console.log(`Inserted question with ID: ${questionId}`);
             for (const option of question.options) {
-                if (!option.option_text || typeof option.is_correct !== 'boolean') {
-                    continue; // Skip invalid options
-                }
-                console.log("Inserting option:", option.option_text, "for question ID:", questionId);
+                console.log(`Inserting option for question ID ${questionId}:`, option);
                 await db.promise().query(
                     'INSERT INTO Options (question_id, option_text, is_correct) VALUES (?, ?, ?)',
                     [questionId, option.option_text, option.is_correct]
@@ -271,10 +258,11 @@ exports.addBulkJSONQuestions=async(req,res)=>{
         }
 
         res.status(200).json({ message: "Bulk questions added successfully" });
+
     } catch (error) {
         res.status(500).json({
             message: "Error adding bulk questions",
             error: error.message
         });
     }
-}
+};

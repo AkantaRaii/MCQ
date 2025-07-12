@@ -301,7 +301,7 @@ function submitBulkJSONQuestions() {
                 );
             }
         });
-
+        console.log(parsedJson);
         // POST the bulk data to your server endpoint
         fetch('/admin/addBulkJSONQuestions', {
             method: 'POST',
@@ -310,7 +310,7 @@ function submitBulkJSONQuestions() {
             },
             body: JSON.stringify({
                 subject_id: subject_id,
-                JSONQuestions: JSON.stringify(parsedJson)  // still stringified
+                JSONQuestions: parsedJson  // still stringified
             })
         })
         .then(response => {

@@ -10,12 +10,90 @@ router.get('/test', checkApiKey,(req, res) => {
     res.json({ message: 'Hello, world!' });
 });
 
-//Add the routes for the admin course management
+/**
+ * @swagger
+ * /admin/courses:
+ *   get:
+ *     summary: Show all courses (admin)
+ *     responses:
+ *       200:
+ *         description: List of courses
+ */
 router.get('/courses',isAuthenticated,showCourses);
+
+/**
+ * @swagger
+ * /admin/manageCourse:
+ *   get:
+ *     summary: Manage courses (admin)
+ *     responses:
+ *       200:
+ *         description: Manage courses page
+ */
 router.get("/manageCourse",manageCourses);
+
+/**
+ * @swagger
+ * /admin/addCourse:
+ *   post:
+ *     summary: Add a new course (admin)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               course:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Course added
+ */
 router.post('/addCourse',addCourse);
+
+/**
+ * @swagger
+ * /admin/deleteCourse:
+ *   delete:
+ *     summary: Delete a course (admin)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               courseId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Course deleted
+ */
 router.delete('/deleteCourse',deleteCourse);
+
+/**
+ * @swagger
+ * /admin/updateCourse:
+ *   put:
+ *     summary: Update a course (admin)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               courseId:
+ *                 type: integer
+ *               course:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Course updated
+ */
 router.put('/updateCourse',updateCourse);
+
 //Route for the admin to manage the subjects
 router.get('/subjects/:course_id',showSubjects);
 router.get('/manageSubject/:course_id',manageSubjects);
