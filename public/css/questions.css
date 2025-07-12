@@ -474,3 +474,27 @@ pre {
   overflow-x: auto;
   font-size: 13px;
 }
+
+/* --- Modal content fix for Bulk JSON Upload --- */
+#BulkJSONUploadModal .modal-content {
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 95vw;
+  max-width: 500px;
+  box-sizing: border-box;
+}
+
+#BulkJSONQuestionTextarea {
+  max-height: 200px;
+  min-height: 80px;
+  width: 100%;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+/* Optional: Make the code example smaller for better fit */
+#BulkJSONUploadModal pre {
+  font-size: 0.95em;
+  max-width: 100%;
+  box-sizing: border-box;
+}
