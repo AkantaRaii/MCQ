@@ -24,9 +24,21 @@
                 <h1>Questions Bank</h1>
                 <p class="subject-subtitle">Subject: <%= subject.subject_name %></p>
             </div>
+            <div>
             <button class="add-course-btn" onclick="openModal()">
                 <i class="fas fa-plus"></i> Add Question
             </button>
+            <br>
+            <br>
+            <button class="add-course-btn" onclick="OpenTextAreaForJSONQuestionUpload()">
+                <i class="fas fa-plus"></i> As JSON
+            </button>
+            <br>
+            <br>
+            <button class="add-course-btn" onclick="openBulkJSONUploadModal()">
+                <i class="fas fa-plus"></i> As JSON In Bulk
+            </button>
+            </div>
         </header>
 
         <div class="questions-container">
@@ -200,7 +212,7 @@
                     </div>
                 </div>
 
-                <input type="hidden" id="subjectId" value="<%= subject.subject_id %>">
+                <input type="hidden" id="subject_id" value="<%= subject.subject_id %>">
 
                 <div class="modal-actions">
                     <button type="submit" class="submit-btn">
@@ -210,6 +222,69 @@
             </form>
         </div>
     </div>
+    <div id="JSONUploadModal" class="modal">
+  <div class="modal-content">
+    <h2>📥 JSON Question Upload</h2>
+    <p>Paste your <strong>JSON-formatted questions</strong> below. Example:</p>
+
+    <pre><code>{
+  "question_text": "A 4-year-old child develops a rash ..",
+  "options": [
+    { "option_text": "Measles", "is_correct": 0 },
+    { "option_text": "Rubella", "is_correct": 1 },
+    { "option_text": "Varicella", "is_correct": 0 },
+    { "option_text": "Scarlet fever", "is_correct": 0 }
+  ]
+}
+</code></pre>
+
+    <textarea id="JSONQuestionTextarea" rows="10" placeholder="Paste your JSON here..."></textarea>
+
+    <div style="margin-top: 1rem;">
+      <button onclick="submitJSONQuestions()">✅ Submit</button>
+      <button onclick="closeJSONModal()" style="margin-left: 10px;">❌ Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="BulkJSONUploadModal" class="modal">
+  <div class="modal-content">
+    <h2>📥 Bulk JSON Question Upload</h2>
+    <p>Paste your <strong>JSON-formatted questions (array)</strong> below. Example:</p>
+
+    <pre><code>[
+  {
+    "question_text": "A 4-year-old child develops a rash ..",
+    "options": [
+      { "option_text": "Measles", "is_correct": 0 },
+      { "option_text": "Rubella", "is_correct": 1 },
+      { "option_text": "Varicella", "is_correct": 0 },
+      { "option_text": "Scarlet fever", "is_correct": 0 }
+    ]
+  },
+  {
+    "question_text": "Which vitamin is produced in the skin when exposed to sunlight?",
+    "options": [
+      { "option_text": "Vitamin A", "is_correct": 0 },
+      { "option_text": "Vitamin B12", "is_correct": 0 },
+      { "option_text": "Vitamin D", "is_correct": 1 },
+      { "option_text": "Vitamin K", "is_correct": 0 }
+    ]
+  }
+]
+</code></pre>
+
+    <textarea id="BulkJSONQuestionTextarea" rows="12" placeholder="Paste your JSON array of questions here..."></textarea>
+
+    <div style="margin-top: 1rem;">
+      <button onclick="submitBulkJSONQuestions()">✅ Submit</button>
+      <button onclick="closeBulkJSONModal()" style="margin-left: 10px;">❌ Cancel</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
 
     <script src="/js/questions.js"></script>
 </body>

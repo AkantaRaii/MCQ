@@ -1,92 +1,109 @@
 const db= require("../../models/db");
 
-exports.showQuestion= async(req,res)=>{
+exports.showQuestion = async (req, res) => {
     try {
         const subject_id = req.params.subject_id;
-        const no_of_options = 4;
-        const limit = 9;
+        const limit = 9; // 9 questions per page
+        // 2. Get total question count
+        const [[{ count: questionCount }]] = await db.promise().query(
+            `SELECT COUNT(*) AS count FROM Questions WHERE subject_id = ?`,
+            [subject_id]
+        );
+        const total_pages = Math.ceil(questionCount / limit);
 
-        // Get subject info first
+        const page = Math.max(1, parseInt(req.query.page) || total_pages);
+
+        // 1. Get subject & course info
         const [[subject]] = await db.promise().query(
-            'SELECT Subjects.*, Courses.course_name FROM Subjects JOIN Courses ON Subjects.course_id = Courses.course_id WHERE Subjects.subject_id = ?',
+            `SELECT Subjects.*, Courses.course_name
+             FROM Subjects
+             JOIN Courses ON Subjects.course_id = Courses.course_id
+             WHERE Subjects.subject_id = ?`,
             [subject_id]
         );
 
-        // Get total count of questions
-        const [[{count}]] = await db.promise().query(
-            'SELECT COUNT(*) as count FROM Questions WHERE subject_id = ?',
-            [subject_id]
-        );
-
-        // If no questions exist, return early with empty data
-        if (count === 0) {
+        
+        if (questionCount === 0) {
             return res.status(200).render('questions', {
                 questions: [],
                 subject: {
-                    subject_id: subject.subject_id,
-                    subject_name: subject.subject_name,
-                    course_id: subject.course_id,
-                    course_name: subject.course_name,
+                    ...subject,
                     total_pages: 1,
                     current_page: 1
                 }
             });
         }
 
-        // Calculate pagination values
-        const total_pages = Math.ceil(count/limit);
-        const page = parseInt(req.query.page) || total_pages;
-        
-        // Validate page number
-        const validatedPage = Math.max(1, Math.min(page, total_pages));
-        const offset = (validatedPage - 1) * limit || 0;
-        
-        // Get questions and options
-        const result = await db.promise().query(
-            'SELECT * FROM Questions join Options on Questions.question_id=Options.question_id where Questions.subject_id=? LIMIT ? OFFSET ?',
-            [subject_id, limit*no_of_options, offset*no_of_options]
+        const offset = (page - 1) * limit;
+
+        // 3. Get paginated questions
+        const [questionRows] = await db.promise().query(
+            `SELECT question_id, question_text FROM Questions
+             WHERE subject_id = ?
+             ORDER BY question_id
+             LIMIT ? OFFSET ?`,
+            [subject_id, limit, offset]
         );
-        const questions = result[0];
-        
-        // Format the data
-        let formatted_data = [];
-        let question_id = [];
-        for (let i = 0; i < questions.length; i++) {
-            let question = questions[i];
-            let obj = {};
-            if (!question_id.includes(question.question_id)) {
-                question_id.push(question.question_id);
-                obj.question_id = question.question_id;
-                obj.question_text = question.question_text;
-                obj.options = [[question.option_text, question.is_correct]];
-                formatted_data.push(obj);
-            } else {
-                formatted_data.forEach(obj => {
-                    if(obj.question_id == question.question_id) {
-                        obj.options.push([question.option_text, question.is_correct]);
-                    }
-                });
+
+        const questionIds = questionRows.map(q => q.question_id);
+        if (questionIds.length === 0) {
+            return res.status(200).render('questions', {
+                questions: [],
+                subject: {
+                    ...subject,
+                    total_pages,
+                    current_page: page
+                }
+            });
+        }
+
+        // 4. Fetch all options for those questions
+        const [optionRows] = await db.promise().query(
+            `SELECT question_id, option_text, is_correct FROM Options
+             WHERE question_id IN (?)
+             ORDER BY question_id`,
+            [questionIds]
+        );
+
+        // 5. Group options by question
+        const questionMap = new Map();
+        for (const q of questionRows) {
+            questionMap.set(q.question_id, {
+                question_id: q.question_id,
+                question_text: q.question_text,
+                options: []
+            });
+        }
+
+        for (const opt of optionRows) {
+            if (questionMap.has(opt.question_id)) {
+                questionMap.get(opt.question_id).options.push([
+                    opt.option_text,
+                    opt.is_correct
+                ]);
             }
         }
 
+        const formattedQuestions = Array.from(questionMap.values());
+
+        // 6. Render response
         res.status(200).render('questions', {
-            questions: formatted_data,
+            questions: formattedQuestions,
             subject: {
-                subject_id: subject.subject_id,
-                subject_name: subject.subject_name,
-                course_id: subject.course_id,
-                course_name: subject.course_name,
-                total_pages: total_pages,
-                current_page: validatedPage
+                ...subject,
+                total_pages,
+                current_page: page
             }
         });
+
     } catch (error) {
         res.status(500).json({
             message: "Error fetching questions",
             error: error.message
         });
     }
-}
+};
+
 
 // { esto format ma hunxa formatted_data respose garda
 //   question_id: 1,
@@ -163,8 +180,6 @@ exports.addQuestion=async(req,res)=>{
         for (let i=0;i<options.length;i++){
             const result=await db.promise().query('INSERT INTO Options(question_id,option_text,is_correct) values(?,?,?)',[id,options[i].option_text,options[i].is_correct]);
         }
-
-
         return res.status(200).json({
             message: "Question added successfully",
             question_id: id
@@ -210,3 +225,44 @@ exports.updateQuestion=async(req,res)=>{
         })
     }
 }
+
+exports.addBulkJSONQuestions = async (req, res) => {
+    try {
+        const { JSONQuestions, subject_id } = req.body;
+
+        if (!JSONQuestions || !subject_id) {
+            return res.status(400).json({ message: "Invalid input data" });
+        }
+
+        if (!Array.isArray(JSONQuestions) || JSONQuestions.length === 0) {
+            return res.status(400).json({ message: "No valid questions found in the JSON data" });
+        }
+
+        for (const question of JSONQuestions) {
+            if (!question.question_text || !Array.isArray(question.options)) continue;
+
+            const [result] = await db.promise().query(
+                'INSERT INTO Questions (subject_id, question_text) VALUES (?, ?)',
+                [subject_id, question.question_text]
+            );
+
+            const questionId = result.insertId;
+            console.log(`Inserted question with ID: ${questionId}`);
+            for (const option of question.options) {
+                console.log(`Inserting option for question ID ${questionId}:`, option);
+                await db.promise().query(
+                    'INSERT INTO Options (question_id, option_text, is_correct) VALUES (?, ?, ?)',
+                    [questionId, option.option_text, option.is_correct]
+                );
+            }
+        }
+
+        res.status(200).json({ message: "Bulk questions added successfully" });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Error adding bulk questions",
+            error: error.message
+        });
+    }
+};
